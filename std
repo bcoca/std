@@ -1,0 +1,50 @@
+#!/usr/bin/env perl
+# Simple Template Daguerreotype 
+#
+# Author: briancoca+std@gmail.com
+#
+# tiny templating system for those that just need variable substitution
+# templates just need [% keyword %] which will be substituted wiht the 
+# contents of the VD file. Uses perl cause only gawk supports inline ref
+# for substitution.
+use strict;
+use warnings;
+
+sub nag(@){print STDERR join(",",@_),"\n";}
+sub wine(@){ nag(@_) and die;} # yes, i know how to spell whine
+
+my $data = shift;
+my $template = shift;
+my $output = shift;
+
+my $myvars;
+if ( $data and $data !~ /-/) {
+  $myvars = {};
+  open VD, "<",$data or wine("Error while opening $data");
+  while(<VD>) {
+      next if /^#/; #skip comments
+      /^(\w+?)=(.*)$/;
+      $myvars->{$1} = $2;
+  }
+  close VD or wine("Error while closing $data");
+}
+else {
+  $myvars = \%ENV;
+}
+
+# redirect ST outputs if i have params.
+if ($template and $template !~ /-/) {
+  open STDIN, "<", $template or wine("Error while opening $template");
+}
+if ($output and $output !~ /-/) {
+  open STDOUT, ">", $output or wine("Error while opening $output");
+}
+
+# uses $_ magic. and does most all of the work
+while(<STDIN>){
+    s/\[%\s+(\w+)\s+%\]/$myvars->{$1}/g;
+    print $_;
+}
+
+1;
+__END__

@@ -1,0 +1,10 @@
+# Variable definitions
+# this is a comment
+# keywords can be any valid perl hash key that matches to: (\w+?)=
+#  repeted keywords will override previous declarations.
+# value can include almost anything, except a newline.
+kewyord=value
+keyword2=value 2 can be anything = or not
+key_word="quotes will not be stripped"
+key_word2="no variable substitutiy1yon supported"
+key word=INVALID KEYWORD, this will be ignored!
