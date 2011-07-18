@@ -1,11 +1,11 @@
 #!/usr/bin/env perl
-# Simple Template Daguerreotype 
+# Simple Template Daguerreotype
 #
 # Author: briancoca+std@gmail.com, Copyright 2011 Brian Coca
 # License: GNU General Public License v2 http:http://www.gnu.org/licenses/gpl-2.0.html
 #
 # tiny templating system for those that just need variable substitution
-# templates just need [% keyword %] which will be substituted wiht the 
+# templates just need [% keyword %] which will be substituted wiht the
 # contents of the VD file. Uses perl cause only gawk supports inline ref
 # for substitution.
 use strict;
@@ -16,7 +16,7 @@ my $template = shift;
 my $output = shift;
 
 my $myvars; #TODO: use tie'd hash instead of slupring into RAM
-if ( $data and $data !~ /-/) { 
+if ( $data and $data !~ /-/) {
   $myvars = {};
   open my $vd, "<",$data or die("Error while opening $data");
   while(<$vd>) {
