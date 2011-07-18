@@ -20,8 +20,9 @@ if ( $data and $data !~ /-/) {
   $myvars = {};
   open VD, "<",$data or die("Error while opening $data");
   while(<VD>) {
-      /^(\w+)=(.*)$/;
-      $myvars->{$1} = $2;
+      if (/^(\w+)=(.*)$/) {
+        $myvars->{$1} = $2;
+      }
   }
   close VD or die("Error while closing $data");
 }
