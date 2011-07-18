@@ -18,13 +18,13 @@ my $output = shift;
 my $myvars; #TODO: use tie'd hash instead of slupring into RAM
 if ( $data and $data !~ /-/) { 
   $myvars = {};
-  open VD, "<",$data or die("Error while opening $data");
-  while(<VD>) {
+  open my $vd, "<",$data or die("Error while opening $data");
+  while(<$vd>) {
       if (/^(\w+)=(.*)$/) {
         $myvars->{$1} = $2;
       }
   }
-  close VD or die("Error while closing $data");
+  close $vd or die("Error while closing $data");
 }
 else {
   $myvars = \%ENV;
@@ -41,6 +41,6 @@ if ($output and $output !~ /-/) {
 # uses $_ magic. and does most all of the work
 while(<STDIN>){
   no warnings qw{ uninitialized };
-  s/\[% (\w+) %\]/$myvars->{$1}/g or warn ("Didn't match $1, leaving empty");
+  s/\[% (\w+) %\]/$myvars->{$1}/g or warn ("Didn't match ($1), leaving empty");
   print $_;
 }
