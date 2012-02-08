@@ -1,27 +1,18 @@
 STD
 @contributors: Brian Coca <briancoca+std@gmail.com>
 
-Simple Template Daguerreotype
+Simple Tools Depot
+
+A bunch of simple tools and scripts that I've found myself and others
+reimplementing over and over.
+
+
 I've used a variation of this for many things, mostly configuration templates
 per environment. I published here to make it available mostly for the Kisssme
 project (https://github.com/matthewstory/kisssme)
 
 
-This is designed to be very simple, just data substitution template, most
-people can do this in any language in a few minutes, I probably wrote this 
-same functionality in 5 languages 25 times, hopefully this will be one of 
-the last times.
+* st        -> simple templates
 
-std can take 3 parameters, positionally:
+* nagmsg    -> nagios message formater
 
-#>std <variable definition> <template>  <output>
-
-all are file names, or can be left blank to default to the envrionement, STDIN
-and STDOUT respectively. You can also use a single '-' to force the same behaviour.
-
-#>std - /mytemplates/template.tmpl 
-
-will read variable data from the envrionment, read the template.tmpl file and output
-to STDOUT.
-
-enjoy.

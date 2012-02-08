@@ -1,0 +1,16 @@
+#!/bin/sh
+# This script makes it easy to compare your NS servers to see if they are out of
+#sync
+for zone in $*
+do
+  # Gets the IPs for the ns hosts
+  for nshost in `dnsqr NS "$zone"|grep 'answer'|cut -f5 -d' '|xargs -r -n 1 dnsip`
+  do
+    #creates data file per zone/host
+    if [ ! -z $nshost ]; then
+      tcpclient -H -R $nshost 53 axfr-get "$zone" "$zone.$nshost.data" "$zone.$nshost.tmp"
+    else
+      echo "cannot find NS records for $zone"
+    fi
+  done
+done

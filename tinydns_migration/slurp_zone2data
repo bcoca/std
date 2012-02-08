@@ -1,0 +1,15 @@
+#!/bin/sh
+for zone in "$@"
+do
+  #takes first available ns host
+  nshost=`dnsqr NS "$zone"|grep 'answer'|cut -f5 -d' '|head -n 1|xargs dnsip`
+
+  if [ ! -z $nshost ]; then
+    #creates data file per zone
+    tcpclient -H -R $nshost 53 axfr-get "$zone" "$zone.data" "$zone.tmp"
+  else
+    echo "cannot find NS records for $zone"
+  fi
+done
+echo "you can now 'cat *.data >> data' to create tinydns's data file"
+
