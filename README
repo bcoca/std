@@ -14,5 +14,5 @@ project (https://github.com/matthewstory/kisssme)
 
 * st        -> simple templates
 
-* nagmsg    -> nagios message formater
+* tinydns_migration -> scripts to migrate to tinydns
 

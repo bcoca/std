@@ -1,0 +1,5 @@
+slurp_zone2data => migration tool, slurps existing dns config using axfr and
+creates data files per zone for tinydns.
+
+slurp_dns_from_each_NS => tool that creates data files per NS server
+in case existing DNS is out of sync, for easy comparisson.
