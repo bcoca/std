@@ -12,7 +12,8 @@ per environment. I published here to make it available mostly for the Kisssme
 project (https://github.com/matthewstory/kisssme)
 
 
-* st        -> simple templates
+* st                -> simple templates
 
 * tinydns_migration -> scripts to migrate to tinydns
 
+* get_logs          -> simple utility to remotely copy and keep rotating logs

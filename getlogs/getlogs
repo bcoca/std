@@ -18,12 +18,13 @@ do
     [ -d "${archdir}" ] || mkdir -p "${archdir}"
 
     # Assumes rsync did it's job right and no manual updates to files
-    for file in $(find "${syncdir}" -type f -print)
+    for sfile in $(find "${syncdir}" -type f )
     do
-        target="${archdir}/$(stat -f %m ${file})-${host}-${TAG}.${file##*.}"
+        target=${archdir}/$(stat -f %m ${sfile})-$(basename $sfile)
+        target="${target%%.*}-${host}-${TAG}.${sfile##*.}"
         target="${target%%.}"
         if [ ! -e "${target}" ]; then
-            ln "${file}" "${target}"
+            ln "${sfile}" "${target}"
         fi
     done
 done
