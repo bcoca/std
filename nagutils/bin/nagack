@@ -1,0 +1,131 @@
+#!/bin/sh
+# $Author: briancoca+nagutils@gmail.com
+# $Version: 0.3$
+
+
+# To specify your config just create a NAG_CFG env variable
+NAG_CFG=${NAG_CFG:-"/etc/nagios/nagios.cfg"}
+
+# defaults 
+STICKY=${STICKY:-0}
+NOTIFY=${NOTIFY:-1}
+PERSISTENT=${PERSISTENT:-0}
+TIME="`date +%s`"
+ME=`whoami`
+
+function noconfig ()
+{
+	echo "Could not find a valid configuration file, please set NAG_CFG to point to your nagios.cfg" >&2
+	exit 1
+}
+
+function ShowUsage ()
+{
+		if [[ ! -z $1 ]]; then
+			1>&2
+		  echo
+		  echo $1
+		  echo "Input error, this is the correct usage of this script."
+		  echo
+		fi
+
+    echo "Usage:"
+    echo " > $0 [-p] [-s] [-N] [-n] -H <host> [-S <service>] -c <comment>"
+    echo
+    echo " -H <nagios host>"
+    echo " -S <nagios service> (ommit to acknowledge host problem)"
+    echo " -c <comment> comment to instert with acknowledgement"
+    echo " -p make persistent"
+    echo " -s make sticky"
+    echo " -N don't notify"
+    echo " -n Dry run, shows debug info"
+    echo
+    echo " If you don't specify the required parameters you will be prompted for them"
+    echo
+    exit 1
+}
+
+##### MAIN ####
+
+# Get config
+if [ -e $NAG_CFG ]; then
+	eval `grep "command_file" $NAG_CFG` || noconfig
+else
+	noconfig 
+fi
+
+if [ -e $command_file ]; then 
+	noconfig
+fi
+
+# Get Options
+while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
+        case "$1" in
+        -h|--help)
+                ShowUsage
+        ;;
+        -H)
+                shift
+                NHOST="$1"
+        ;;
+        -S)
+                shift
+                NSERVICE="$1"
+        ;;
+        -c)
+                shift
+                COMMENT="$1"
+        ;;
+        -p)
+                PERSISTENT=0
+        ;;
+        -s)
+                STICKY=1
+        ;;
+        -N)
+                NOTIFY=0
+        ;;
+        -n)
+                DEBUG=1
+        ;;
+        *)
+                ShowUsage "Invalid option ($1)"
+        ;;
+        esac
+        shift
+done
+
+# Import nagios config into bash vars w/o illegal chars
+if [ -f ${NAG_CFG} ]; then
+	eval `grep "command_file" ${NAG_CFG}`
+else
+	echo "Nagios config not found, cannot continue!"
+	exit 1
+fi
+
+[ -z $NHOST ] && ShowUsage "Host is missing!"
+
+if [[ -z $COMMENT ]]; then
+        echo -n "Enter comment: "
+        read COMMENT
+        [ -z "$COMMENT" ] && ShowUsage "No comment??!"
+fi
+
+# If no service is provided acknowledge host
+if [[ -z $NSERVICE ]]; then
+        MYCMD1="[$TIME] ADD_HOST_COMMENT;$NHOST;$NSERVICE;$PERSIST;$ME;$COMMENT"
+        MYCMD2="[$TIME] ACKNOWLEDGE_HOST_PROBLEM;$NHOST;$NOTIFY;$COMMENT"
+else
+        MYCMD1="[$TIME] ADD_SVC_COMMENT;$NHOST;$NSERVICE;$PERSIST;$ME;$COMMENT"
+        MYCMD2="[$TIME] ACKNOWLEDGE_SVC_PROBLEM;$NHOST;$NSERVICE;$NOTIFY;$COMMENT"
+fi
+
+# Actually do it if not in debug
+if [[ -z $DEBUG ]]; then
+        echo "$MYCMD1" > $command_file
+        echo "$MYCMD2" > $command_file
+else
+        echo "I Would have executed:"
+        echo "echo \"$MYCMD1\" > $command_file"
+        echo "echo \"$MYCMD2\" > $command_file"
+fi

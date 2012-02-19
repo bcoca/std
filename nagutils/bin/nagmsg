@@ -1,0 +1,24 @@
+#!/bin/sh
+
+set -e
+
+mysubject=""
+service=0
+
+mymsg="${NAGIOS_LONGDATETIME}\nHost: ${NAGIOS_HOSTALIAS}\nAddress: ${NAGIOS_HOSTADDRESS}\n${NAGIOS_HOSTNOTESURL}"
+
+if [ "X${NAGIOS_SERVICEDESC}" = "X" ]; then
+    mysubject="${mysubject}:${NAGIOS_HOSTSTATE}"
+    mymsg="${mymsg}\n\nInfo:${NAGIOS_LONGHOSTOUTPUT}"
+else
+    mysubject="${mysubject}/${NAGIOS_SERVICEDESC}:${NAGIOS_SERVICESTATE}"
+    mymsg="${mymsg}\nService: ${NAGIOS_SERVICEDESC}\nState: ${NAGIOS_SERVICESTATE}\n${NAGIOS_SERVICENOTESURL}\n\nInfo:\n${NAGIOS_LONGSERVICEOUTPUT}"
+fi
+
+
+if [ "$NAGIOS_NOTIFICATIONTYPE" = "ACKNOWLEDGEMENT" ]; then
+    mymsg="${mymsg}\nAuthor: ${NAGIOS_NOTIFICATIONAUTHOR}\nMessage: ${NAGIOS_NOTIFICATIONCOMMENT}"
+fi
+
+# Actually send it
+echo -e "${mymsg}" | /usr/bin/mail -s "[${NAGIOS_NOTIFICATIONTYPE}] ${NAGIOS_HOSTNAME}${mysubject}" "$*"

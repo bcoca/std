@@ -1,0 +1,176 @@
+#!/bin/sh
+# $Author: briancoca+nagutils@gmail.com$
+# $Version: 0.3$
+#
+# To specify your config just create a NAG_CFG env variable
+NAG_CFG=${NAG_CFG:-"/etc/nagios/nagios.cfg"}
+
+# defaults
+TIME="`date +%s`"
+ME=`whoami`
+
+ACTION=""
+CHECK=0
+NOTIFY=0
+PASSIVE=0
+
+function noconfig ()
+{
+	echo "Could not find a valid configuration file, please set NAG_CFG to point to your nagios.cfg" >&2
+	exit 1
+}
+
+function ShowUsage ()
+{
+  if [[ ! -z $1 ]]; then
+		1>&2
+		echo
+		echo $1
+		echo "Input error, this is the correct usage of this script."
+		echo
+	fi
+	
+	echo "Usage:"
+	echo " > $0 (-e|-d|-E|-D|-s|-w|-W) -H <host> [-S <service>] [-n] "
+	echo
+	echo " -H: <nagios host> (use ALL to signify global scope of this command)"
+	echo " -S: <nagios service> (use ALL to signify all services for a host)"
+	echo " -e: Enables Checks"
+	echo " -d: Disables Checks"
+	echo " -E: Enables Notifications"
+	echo " -D: Disables Notifications"
+	echo " -w: force wait on a HOST/SERVICE notification *1"
+	echo " -s: Schedules a SERVICE check in 15s"
+	echo " -n: Dry run, enables debug"
+	echo
+	echo "*1 this option does not support the 'ALL' keyword"
+	echo
+	exit 1
+}
+##### MAIN ####
+
+# Get config
+if [ -e $NAG_CFG ]; then
+	eval `grep "command_file" $NAG_CFG` || noconfig
+else
+	noconfig 
+fi
+
+if [ -e $command_file  ]; then 
+	noconfig
+fi
+
+# Get Options
+while [ $# -gt 0 ]; do    # Until you run out of parameters . . .
+	case "$1" in
+	-h|--help)
+		ShowUsage
+	;;
+	-H)
+		shift
+		NHOST="$1"
+	;;
+	-S)
+		shift
+		NSERVICE="$1"
+	;;
+	-e)
+		CHECK=1
+		ACTION="ENABLE"
+	;;
+	-E)
+		NOTIFY=1
+		ACTION="ENABLE"
+	;;
+	-d)
+		CHECK=1
+		ACTION="DISABLE"
+	;;
+	-D)
+		NOTIFY=1
+		ACTION="DISABLE"
+	;;
+	-n)
+		DEBUG=1
+	;;
+	-s)
+		CHECK=1
+		ACTION="SCHEDULE_FORCED"
+		DOAT=`expr $TIME + 15`
+	;;
+	-w)
+		NOTIFY=1
+		ACTION="DELAY"
+		DOAT=`expr $TIME + 3600`
+	;;
+	*)
+		ShowUsage "Invalid option ($1)"
+	;;
+	esac
+	shift
+done
+											
+[[ -z $NHOST && -z $NHOSTGROUP ]] && ShowUsage "You must supply either a host or a hostgroup!"
+[[ ! -z $NHOST && ! -z $NHOSTGROUP ]] && ShowUsage "You must supply either a host or a hostgroup!"
+
+if [[ $CHECK == $NOTIFY ]]; then
+	ShowUsage "Incompatible options selected!"
+fi
+
+# Which is the object of the command?
+if [[ $CHECK ]]; then
+	OBJT="CHECK"
+else
+	OBJT="NOTIFICATION"
+fi
+
+# Initiate command construction
+MYCMD="$ACTION"
+
+	
+# Check if this is global command 
+if [[ "$NHOST" != "ALL" ]]; then
+		
+	MYPARAM=$NHOST
+		
+	# Add service data as needed
+	if [[ -z $NSERVICE ]]; then
+		MYCMD="${MYCMD}_HOST"
+		OBJT="${OBJT}S"
+	else
+		# For all services of a host, or just 1
+		if [[ "$NSERVICE" == "ALL" ]]; then
+			OBJT="${OBJT}S"
+			MYCMD="${MYCMD}_HOST_SVC"
+		else 
+			MYCMD="${MYCMD}_SVC"
+			MYPARAM="$MYPARAM;$NSERVICE"
+		fi
+	fi
+else 
+	OBJT="${OBJT}S"
+fi
+
+
+# Add object
+MYCMD="${MYCMD}_${OBJT}"
+
+# Add time if needed
+if [[ ! -z $DOAT ]]; then
+	MYPARAM="$MYPARAM;$DOAT"
+fi
+
+# contruct commandline
+if [[ -z $MYPARAM ]]; then
+	TOEXEC="[$TIME] $MYCMD"
+else
+	TOEXEC="[$TIME] $MYCMD;$MYPARAM"
+fi
+
+# Actually do it if not in debug
+if [[ -z $DEBUG ]]; then
+	echo "$TOEXEC" > $command_file
+else 
+	echo "Would execute:"
+	echo "echo \"$TOEXEC\" > $command_file"
+fi
