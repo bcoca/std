@@ -1,4 +1,8 @@
 #!/bin/sh
+#
+# Author: briancoca+std@gmail.com, Copyright 2011 Brian Coca
+# License: GNU General Public License v2 http:http://www.gnu.org/licenses/gpl-2.0.html
+#
 usage() { echo -e "$*\nUsage:\n\t#>${0##*/} <config_file> " 2>&1 && exit 1; }
 
 set -e

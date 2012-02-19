@@ -1,6 +1,9 @@
 #!/bin/sh
-# This script makes it easy to compare your NS servers to see if they are out of
-#sync
+# Author: briancoca+std@gmail.com, Copyright 2011 Brian Coca
+# License: GNU General Public License v2 http:http://www.gnu.org/licenses/gpl-2.0.html
+#
+# This script makes it easy to compare your NS servers to see if they are out of sync
+
 for zone in $*
 do
   # Gets the IPs for the ns hosts
