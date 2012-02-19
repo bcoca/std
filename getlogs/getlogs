@@ -1,0 +1,31 @@
+#!/bin/sh
+usage() { echo -e "$*\nUsage:\n\t#>${0##*/} <config_file> " 2>&1 && exit 1; }
+
+set -e
+
+MYCONF="${1}"
+
+. "${MYCONF}" || usage "Invalid configuration file: ${MYCONF}"
+
+for host in  ${LOG_HOSTS?}
+do
+    syncdir="${GETLOG_DIR?}/${host}/sync/${TAG?}"
+    [ -d "${syncdir}" ] || mkdir -p "${syncdir}"
+
+    rsync -e ssh -rtq --delete "${host}:${LOG_DIR?}/${LOG_PATTERN?}" "${syncdir}"
+
+    archdir="${GETLOG_DIR}/${host}/archive"
+    [ -d "${archdir}" ] || mkdir -p "${archdir}"
+
+    # Assumes rsync did it's job right and no manual updates to files
+    for file in $(find "${syncdir}" -type f -print)
+    do
+        target="${archdir}/$(stat -f %m ${file})-${host}-${TAG}.${file##*.}"
+        target="${target%%.}"
+        if [ ! -e "${target}" ]; then
+            ln "${file}" "${target}"
+        fi
+    done
+done
+
+exit 0
