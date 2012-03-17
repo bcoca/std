@@ -1,0 +1,2 @@
+A script you can call from ejabberd to use an apache htpassword file as an
+authentication source.
