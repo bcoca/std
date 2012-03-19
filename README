@@ -6,13 +6,13 @@ A bunch of simple tools and scripts that I've found myself and others
 reimplementing over and over.
 
 
-I've used a variation of this for many things, mostly configuration templates
-per environment. I published here to make it available mostly for the Kisssme
-project (https://github.com/matthewstory/kisssme)
+* st                -> simple templates.
 
+* tinydns_migration -> scripts to migrate to tinydns.
 
-* st                -> simple templates
+* get_logs          -> simple utility to remotely copy and keep rotating logs.
 
-* tinydns_migration -> scripts to migrate to tinydns
+* nagutils          -> some comandline utilities for nagios.
 
-* get_logs          -> simple utility to remotely copy and keep rotating logs
+* ejabberd_htpass   -> script to allow ejabberd to use htpasswd file as auth
+                    source.
