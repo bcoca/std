@@ -16,3 +16,5 @@ reimplementing over and over.
 
 * ejabberd_htpass   -> script to allow ejabberd to use htpasswd file as auth
                     source.
+
+* get_collection_info -> script to get collection info with older ansbile.
