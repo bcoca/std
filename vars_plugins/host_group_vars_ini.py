@@ -51,7 +51,7 @@ class VarsModule(BaseVarsPlugin):
 
     def _error(self, msg):
 
-        do = self.get_optoin('on_error')
+        do = self.get_option('on_error')
         if do == 'fatal':
             raise AnsibleParserError(msg)
         elif do == 'warn':
