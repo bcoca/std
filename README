@@ -6,9 +6,9 @@ A bunch of simple tools and scripts that I've found myself and others
 reimplementing over and over.
 
 
-* st                -> simple templates.
+* st                -> simple templating, using `[%` and  `%]` as delimiters.
 
-* tinydns_migration -> scripts to migrate to tinydns.
+* tinydns_migration -> scripts to migrate existing DNS to tinydns.
 
 * get_logs          -> simple utility to remotely copy and keep rotating logs.
 
@@ -17,4 +17,9 @@ reimplementing over and over.
 * ejabberd_htpass   -> script to allow ejabberd to use htpasswd file as auth
                     source.
 
-* get_collection_info -> script to get collection info with older ansbile.
+* list_collection_info -> script to list collections with older ansbile (<= 2.9).
+
+* get_collection_info -> script to get collection info with older ansbile (<=2.9).
+
+* vars_plugins/  -> custom ansible vars plugins.
+	- host_group_vars_ini -> similar to built in ansible host_group_vars, but reads ini instead of YAML/JSON.
